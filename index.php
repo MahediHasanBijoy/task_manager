@@ -1,3 +1,17 @@
+<?php
+require_once "config.php";
+
+$connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+if(mysqli_connect_errno()){
+    echo "Error: Failed to connect". mysqli_connect_error();
+    exit();
+}else{
+    $query = "SELECT * FROM tasks";
+    $result = mysqli_query($connection, $query);
+}
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,6 +34,13 @@
                 <p>Manage your daily tasks easily and keep yourself up to date.</p>
 
                 <h4>All Tasks</h4>
+                <?php
+                    if($result->num_rows == 0):
+                ?>
+                <p>No tasks found</p>
+                <?php
+                    else:
+                ?>
                 <table>
                     <thead>
                         <tr>
@@ -31,20 +52,22 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <?php
+                        
+                            while($data = mysqli_fetch_assoc($result)):
+                        ?>
                         <tr>
                             <td><input type="checkbox"></td>
-                            <td>1</td>
-                            <td>Make Tea</td>
-                            <td>2023-03-24</td>
+                            <td><?php echo $data['id'];?></td>
+                            <td><?php echo $data['task'];?></td>
+                            <td><?php echo $data['date'];?></td>
                             <td><a href="#" class="button button-clear">Edit</a> |<a href="#" class="button button-clear">Delete</a> |<a href="#" class="button button-clear">Completed</a></td>
                         </tr>
-                        <tr>
-                            <td><input type="checkbox"></td>
-                            <td>1</td>
-                            <td>Make Tea</td>
-                            <td>2023-03-24</td>
-                            <td><a href="#" class="button button-clear">Edit</a> |<a href="#" class="button button-clear">Delete</a> |<a href="#" class="button button-clear">Completed</a></td>
-                        </tr>
+
+                        <?php
+                            endwhile;
+                        endif;
+                        ?>
                     </tbody>
                 </table>
                 <form action="index.php" method="GET">
@@ -58,7 +81,13 @@
                 <h3>...</h3>
 
                 <h4>Add Tasks</h4>
-                <form action="#" method="POST">
+                <form action="controller.php" method="POST">
+                    <?php
+                        if(isset($_GET['added']) && $_GET['added'] == true){
+                            echo "<p style='color:#9b4dca;'>Task added successfully &#10004;</p>";
+                        }
+                    ?>
+                    <input type="hidden" name="action" value="add">
                     <label for="">Task</label>
                     <input type="text" name="task" placeholder="Task Details">
                     <label for="">Date</label>
